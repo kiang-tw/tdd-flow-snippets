@@ -1,58 +1,58 @@
 it.each`
-    seatingArea    | expectedFullPrice
+    seatArea       | expectedNormalPrice
     ${"furthest"}  | ${200}
     ${"closer"}    | ${250}
     ${"standing"}  | ${500}
     ${"frontmost"} | ${800}
     ${"hitouch"}   | ${1500}
 `(
-    `Should display full pricing for seat zone $seatingArea`, 
+    `Should display normal pricing for seat area $seatArea when customer is not premium member`, 
     () => {
-        mockSelector.selectedSeatingArea.mockReturnValue(seatingArea);
+        mockSelector.selectedSeatArea.mockReturnValue(seatArea);
+        mockSelector.isPremiumMember.mockReturnValue(false);
         renderPriceComponent(MOCK_DATA)
         const displayPrice = priceComponent.prop('data-price')
-
-        expect(displayPrice).toEqual(expectedFullPrice);
+        expect(displayPrice).toEqual(expectedNormalPrice);
     }
 );
 
-describe('when customer use discount code', () => {
-    beforeEach(() => { mockSelector.useDiscountCode.mockReturnValue(true); });
+describe('when customer is premium member', () => {
+    beforeEach(() => { mockSelector.isPremiumMember.mockReturnValue(true); });
 
     it.each`
-        seatingArea    | expectedDiscountedPrice
+        seatArea       | expectedPremiumPrice
         ${"furthest"}  | ${150}
         ${"closer"}    | ${200}
         ${"standing"}  | ${400}
         ${"frontmost"} | ${600}
         ${"hitouch"}   | ${1200}
     `(
-        `Should display discounted pricing for seat area $seatingArea`, 
+        `Should display premium pricing for seat area $seatArea`, 
         () => {
-            mockSelector.selectedSeatingArea.mockReturnValue(seatingArea);
+            mockSelector.selectedSeatArea.mockReturnValue(seatArea);
+            mockSelector.isPremiumMember.mockReturnValue(true);
             renderPriceComponent(MOCK_DATA);
-            const displayPrice = priceComponent.prop('data-price')
 
-            expect(displayPrice).toEqual(expectedDiscountedPrice);
+            expect(priceComponent.at(1).prop('data-price')).toEqual(expectedPremiumPrice);
         }
     );
 
     it.each`
-        seatingArea    | expectedFullPrice
+        seatArea       | expectedNormalPrice
         ${"furthest"}  | ${200}
         ${"closer"}    | ${250}
         ${"standing"}  | ${500}
         ${"frontmost"} | ${800}
         ${"hitouch"}   | ${1500}
     `(
-        ```Should display full pricing for seat area $seatingArea in crossed out 
-           format to indicate customer get cheaper price when using discount code```, 
+        `Should display normal pricing for seat area $seatArea in crossed out 
+         format to indicate customer get better deal out of premium membership`, 
         () => {
-            mockSelector.selectedSeatingArea.mockReturnValue(seatingArea);
+            mockSelector.selectedSeatArea.mockReturnValue(seatArea);
+            mockSelector.isPremiumMember.mockReturnValue(false);
             renderPriceComponent(MOCK_DATA);
             const displayPrice = priceComponent.prop('data-price').at(0);
-            
-            expect(displayPrice.prop('data-price')).toEqual(expectedFullPrice);
+            expect(displayPrice.prop('data-price')).toEqual(expectedNormalPrice);
             expect(displayPrice).toHaveClass('price-crossed-out');
         }
     );
